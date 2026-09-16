@@ -1,11 +1,11 @@
 services:
   bazarr:
     image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
     restart: unless-stopped
     env_file:
       # Remove this section if you are using Portainer
       - .env
-    container_name: bazarr
     networks:
       - proxy
     #    ports:
@@ -14,16 +14,16 @@ services:
       TZ: ${TZ}
       UMASK_SET: 2 # Default permissions
     volumes:
-      - "${BASE_PATH}/bazarr/config:/config"
-      - "${BASE_PATH}/data/media:/data/media" # Access movies and TV shows for subtitle management
+      - "./bazarr/config:/config"
+      - "./data/media:/data/media" # Access movies and TV shows for subtitle management
 
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
     restart: unless-stopped
     env_file:
       # Remove this section if you are using Portainer
       - .env
-    container_name: flaresolverr
     networks:
       - proxy
     environment:
@@ -36,23 +36,23 @@ services:
 
   # # OpenVPN is used only if you want to isolate your
   # # qBittorrent traffic within its own VPN. Generally, this is not necessary.
-  # # To use it, place the .ovpn configuration files in the folder "${BASE_PATH}/config/openvpn".
+  # # To use it, place the .ovpn configuration files in the folder "./openvpn/config".
   # openvpn:
-  #   hostname: openvpn
-  #   restart: unless-stopped
-  # env_file:
-  #   - .env
   #   image: dperson/openvpn-client:latest
   #   container_name: openvpn
+  #   hostname: openvpn
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env
   #   entrypoint: ["/sbin/tini", "--", "/usr/bin/openvpn.sh"]
   #   devices:
   #     - /dev/net/tun:/dev/net/tun
   #   cap_add:
   #     - NET_ADMIN  # Adds network administration permissions
   #   volumes:
-  #     # Ensure you place the .ovpn configuration file in the folder "${BASE_PATH}/openvpn/openvpn".
+  #     # Ensure you place the .ovpn configuration file in the folder "./openvpn/config".
   #     # You can obtain this file from the VPN provider you are using.
-  #     - "${BASE_PATH}/openvpn/config:/vpn"
+  #     - "./openvpn/config:/vpn"
   #   ports:
   #     - "6881:6881/tcp"
   #     - "6881:6881/udp"
@@ -67,11 +67,11 @@ services:
   # Without OpenVPN, qBittorrent traffic will be routed directly through the host IP.
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
     restart: unless-stopped
     env_file:
       # Remove this section if you are using Portainer
       - .env
-    container_name: qbittorrent
     networks:
       - proxy
       # network_mode: ${USE_VPN:-default}  # Value defined by the USE_VPN environment variable. If commented out, 'default' will be used. Use 'default' for host traffic or 'service:openvpn' for VPN traffic.
@@ -84,8 +84,8 @@ services:
       # OPENAI_API_KEY: sk-xxxxxx # Enables AI functionalities in the container
       WEBUI_PORT: 8080
     volumes:
-      - "${BASE_PATH}/qbittorrent/config:/config"
-      - "${BASE_PATH}/data/torrents:/data/torrents"
+      - "./qbittorrent/config:/config"
+      - "./data/torrents:/data/torrents"
       - /etc/localtime:/etc/localtime:ro
     ports:
       # Remove this section if using OpenVPN
@@ -96,11 +96,11 @@ services:
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
     restart: unless-stopped
     env_file:
       # Remove this section if you are using Portainer
       - .env
-    container_name: sonarr
     networks:
       - proxy
     #    ports:
@@ -110,34 +110,34 @@ services:
       SONARR_BRANCH: main
       SONARR_CHANNEL: v4-stable
     volumes:
-      - "${BASE_PATH}/sonarr/config:/config"
-      - "${BASE_PATH}/data:/data"
+      - "./sonarr/config:/config"
+      - "./data:/data"
 
   radarr:
     image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
     restart: unless-stopped
-    networks:
-      - proxy
     env_file:
       # Remove this section if you are using Portainer
       - .env
-    container_name: radarr
+    networks:
+      - proxy
     #    ports:
     #      - "7878:7878"
     environment:
       # OPENAI_API_KEY: sk-xxxxxx # Enables AI functionalities in the container
       TMPDIR: /run/radarr-temp
     volumes:
-      - "${BASE_PATH}/radarr/config:/config"
-      - "${BASE_PATH}/data:/data"
+      - "./radarr/config:/config"
+      - "./data:/data"
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
     restart: unless-stopped
     env_file:
       # Remove this section if you are using Portainer
       - .env
-    container_name: prowlarr
     networks:
       - proxy
     #    ports:
@@ -146,15 +146,15 @@ services:
       # OPENAI_API_KEY: sk-xxxxxx # Enables AI functionalities in the container
       TMPDIR: /run/prowlarr-temp
     volumes:
-      - "${BASE_PATH}/prowlarr/config:/config"
+      - "./prowlarr/config:/config"
 
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
     restart: unless-stopped
     env_file:
       # Remove this section if you are using Portainer
       - .env
-    container_name: jellyseerr
     networks:
       - proxy
     #    ports:
@@ -162,15 +162,15 @@ services:
     environment:
       BASE_URL: "" # Define a value if using reverse proxy
     volumes:
-      - "${BASE_PATH}/jellyseerr/config:/app/config" # Jellyseerr configuration
+      - "./jellyseerr/config:/app/config" # Jellyseerr configuration
 
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
     restart: unless-stopped
     env_file:
       # Remove this section if you are using Portainer
       - .env
-    container_name: jellyfin
     networks:
       - proxy
     ports:
@@ -185,8 +185,8 @@ services:
     #   NVIDIA_DRIVER_CAPABILITIES: compute,video,utility
     volumes:
       # - /opt/vc/lib:/opt/vc/lib # Useful only for software acceleration on Raspberry PI
-      - "${BASE_PATH}/data/media:/Media"
-      - "${BASE_PATH}/jellyfin/config:/config"
+      - "./data/media:/Media"
+      - "./jellyfin/config:/config"
 
 networks:
   proxy:
