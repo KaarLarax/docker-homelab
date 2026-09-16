@@ -4,19 +4,19 @@ services:
     container_name: calibre-web
     restart: unless-stopped
     env_file:
-      - .env
+      - ../.env
     networks:
       - proxy
     #    ports:
     #      - "8083:8083"
     environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: ${TZ}
     volumes:
-      - "${BASE_PATH}/calibre-web/config:/config"
-      - "${BASE_PATH}/data/media/books/books:/calibre-library"
-      - "${BASE_PATH}/data/media/books/books-ingest:/cwa-book-ingest" # Ingest Books
+      - "./config:/config"
+      - "../data/media/books/books:/calibre-library"
+      - "../data/media/books/books-ingest:/cwa-book-ingest" # Ingest Books
 
 networks:
   proxy:
