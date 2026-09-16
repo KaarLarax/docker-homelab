@@ -1,0 +1,38 @@
+services:
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    restart: unless-stopped
+    env_file:
+      - .env
+    networks:
+      - proxy
+    ports:
+      # DNS Ports (Required)
+      - "53:53/tcp"
+      - "53:53/udp"
+      # HTTP port for the web panel
+      #      - "8090:80/tcp"
+      #      # HTTPS port
+      - "8443:443/tcp"
+    environment:
+      # 1. TIMEZONE: Configured for your location in Hidalgo, Mexico.
+      TZ: ${TZ}
+
+      # 2. PASSWORD: Change the pass in the .env to your own secure password.
+      FTLCONF_webserver_api_password: ${INITIAL_PASSWORD}
+
+      # DNS listening mode for Docker
+      FTLCONF_dns_listeningMode: 'ALL'
+
+      # Disable request rate limit due to Docker NAT
+      FTLCONF_rate_limit: '0/0'
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      # Persists configuration and lists so they are not lost when restarting the container
+      - './etc-pihole:/etc/pihole'
+
+networks:
+  proxy:
+    external: true
