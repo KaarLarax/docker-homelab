@@ -1,0 +1,7 @@
+include:
+  - nginx-proxy-manager/compose.yaml
+  - media-stack/compose.yaml
+  - media-stack/bindery/compose.yaml
+  - media-stack/calibre-web/compose.yaml
+  - pihole/compose.yaml
+  - pdfutils/compose.yaml
