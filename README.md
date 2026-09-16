@@ -1,4 +1,4 @@
-# Self-Hosted Media Stack & Helpful Containers
+# Docker Homelab
 
 A fully orchestrated Docker Compose setup for a self-hosted media server, DNS filtering, reverse proxy, and utility tools. Everything runs behind a single Docker network with centralized management.
 
@@ -43,8 +43,8 @@ docker network create --driver bridge --subnet 172.20.0.0/24 --gateway 172.20.0.
 ## Quick Start
 
 ```bash
-git clone git@github.com:KaarLarax/self-hosted-media-stack-and-helpful-containers.git
-cd self-hosted-media-stack-and-helpful-containers
+git clone git@github.com:KaarLarax/docker-homelab.git
+cd docker-homelab
 
 # Configure environment variables
 cp media-stack/.env.example media-stack/.env
