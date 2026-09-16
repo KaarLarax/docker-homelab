@@ -2,11 +2,12 @@ services:
   stirling-pdf:
     image: docker.stirlingpdf.com/stirlingtools/stirling-pdf:latest
     container_name: stirling-pdf
-    volumes:
-      - ./data:/configs
     restart: unless-stopped
     networks:
       - proxy
+    volumes:
+      - ./data:/configs
+
 networks:
   proxy:
     external: true
