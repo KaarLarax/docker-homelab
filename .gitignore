@@ -1,0 +1,17 @@
+# -------------------------------------------------------------------------
+# Ignorar variables de entorno (¡Seguridad primero!)
+# -------------------------------------------------------------------------
+.env
+**/.env
+
+# -------------------------------------------------------------------------
+# Ignorar volúmenes de datos y configuraciones generadas por los contenedores
+# -------------------------------------------------------------------------
+**/config/
+**/data/
+**/etc-pihole/
+**/letsencrypt/
+
+# Ignorar archivos temporales del sistema operativo
+.DS_Store
+Thumbs.db

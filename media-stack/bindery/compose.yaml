@@ -1,0 +1,28 @@
+services:
+  bindery:
+    image: ghcr.io/vavallee/bindery:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    container_name: bindery
+    user: "${PUID}:${PGID}"
+    networks:
+      - proxy
+    #    ports:
+    #      - "8787:8787"
+    environment:
+      - BINDERY_LOG_LEVEL=info
+      - BINDERY_PUID=${PUID}
+      - BINDERY_PGID=${PGID}
+      - TZ=${TZ}
+      - BINDERY_DOWNLOAD_DIR=/data/torrents/books/books
+      - BINDERY_LIBRARY_DIR=/data/media/books/books
+      - BINDERY_AUDIOBOOK_DIR=/data/media/books/audiobooks
+      - BINDERY_AUDIOBOOK_DOWNLOAD_DIR=/data/torrents/books/audiobooks
+    volumes:
+      - "${BASE_PATH}/bindery/config:/config"
+      - "${BASE_PATH}/data:/data"
+
+networks:
+  proxy:
+    external: true

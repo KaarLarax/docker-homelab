@@ -1,0 +1,193 @@
+services:
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    restart: unless-stopped
+    env_file:
+      # Remove this section if you are using Portainer
+      - .env
+    container_name: bazarr
+    networks:
+      - proxy
+    #    ports:
+    #      - "6767:6767"  # Default port for Bazarr
+    environment:
+      TZ: ${TZ}
+      UMASK_SET: 2 # Default permissions
+    volumes:
+      - "${BASE_PATH}/bazarr/config:/config"
+      - "${BASE_PATH}/data/media:/data/media" # Access movies and TV shows for subtitle management
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    restart: unless-stopped
+    env_file:
+      # Remove this section if you are using Portainer
+      - .env
+    container_name: flaresolverr
+    networks:
+      - proxy
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_HTML: ${LOG_HTML:-false}
+      CAPTCHA_SOLVER: ${CAPTCHA_SOLVER:-none}
+      GPG_KEY: A035C8C19219BA821ECEA86B64E628F8D684696D
+  #    ports:
+  #      - "8191:8191"
+
+  # # OpenVPN is used only if you want to isolate your
+  # # qBittorrent traffic within its own VPN. Generally, this is not necessary.
+  # # To use it, place the .ovpn configuration files in the folder "${BASE_PATH}/config/openvpn".
+  # openvpn:
+  #   hostname: openvpn
+  #   restart: unless-stopped
+  # env_file:
+  #   - .env
+  #   image: dperson/openvpn-client:latest
+  #   container_name: openvpn
+  #   entrypoint: ["/sbin/tini", "--", "/usr/bin/openvpn.sh"]
+  #   devices:
+  #     - /dev/net/tun:/dev/net/tun
+  #   cap_add:
+  #     - NET_ADMIN  # Adds network administration permissions
+  #   volumes:
+  #     # Ensure you place the .ovpn configuration file in the folder "${BASE_PATH}/openvpn/openvpn".
+  #     # You can obtain this file from the VPN provider you are using.
+  #     - "${BASE_PATH}/openvpn/config:/vpn"
+  #   ports:
+  #     - "6881:6881/tcp"
+  #     - "6881:6881/udp"
+  #     - "8080:8080/tcp"
+  #     - "8118:8118/tcp"
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://www.google.com"]
+  #     interval: 1m
+  #     timeout: 10s
+  #     retries: 3
+
+  # Without OpenVPN, qBittorrent traffic will be routed directly through the host IP.
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    restart: unless-stopped
+    env_file:
+      # Remove this section if you are using Portainer
+      - .env
+    container_name: qbittorrent
+    networks:
+      - proxy
+      # network_mode: ${USE_VPN:-default}  # Value defined by the USE_VPN environment variable. If commented out, 'default' will be used. Use 'default' for host traffic or 'service:openvpn' for VPN traffic.
+      # depends_on: # Uncomment this section if using OpenVPN
+      # openvpn:
+      #   condition: service_started
+      #   restart: true
+      #   required: true
+    environment:
+      # OPENAI_API_KEY: sk-xxxxxx # Enables AI functionalities in the container
+      WEBUI_PORT: 8080
+    volumes:
+      - "${BASE_PATH}/qbittorrent/config:/config"
+      - "${BASE_PATH}/data/torrents:/data/torrents"
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      # Remove this section if using OpenVPN
+      #      - "8081:8080"
+      - "6881:6881/tcp"
+      - "6881:6881/udp"
+  #      - "8118:8118/tcp"
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    restart: unless-stopped
+    env_file:
+      # Remove this section if you are using Portainer
+      - .env
+    container_name: sonarr
+    networks:
+      - proxy
+    #    ports:
+    #      - "8989:8989"
+    environment:
+      # OPENAI_API_KEY: sk-xxxxxx # Enables AI functionalities in the container
+      SONARR_BRANCH: main
+      SONARR_CHANNEL: v4-stable
+    volumes:
+      - "${BASE_PATH}/sonarr/config:/config"
+      - "${BASE_PATH}/data:/data"
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    restart: unless-stopped
+    networks:
+      - proxy
+    env_file:
+      # Remove this section if you are using Portainer
+      - .env
+    container_name: radarr
+    #    ports:
+    #      - "7878:7878"
+    environment:
+      # OPENAI_API_KEY: sk-xxxxxx # Enables AI functionalities in the container
+      TMPDIR: /run/radarr-temp
+    volumes:
+      - "${BASE_PATH}/radarr/config:/config"
+      - "${BASE_PATH}/data:/data"
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    restart: unless-stopped
+    env_file:
+      # Remove this section if you are using Portainer
+      - .env
+    container_name: prowlarr
+    networks:
+      - proxy
+    #    ports:
+    #      - "9696:9696"
+    environment:
+      # OPENAI_API_KEY: sk-xxxxxx # Enables AI functionalities in the container
+      TMPDIR: /run/prowlarr-temp
+    volumes:
+      - "${BASE_PATH}/prowlarr/config:/config"
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    restart: unless-stopped
+    env_file:
+      # Remove this section if you are using Portainer
+      - .env
+    container_name: jellyseerr
+    networks:
+      - proxy
+    #    ports:
+    #      - "5055:5055"  # Default port for Jellyseerr
+    environment:
+      BASE_URL: "" # Define a value if using reverse proxy
+    volumes:
+      - "${BASE_PATH}/jellyseerr/config:/app/config" # Jellyseerr configuration
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    restart: unless-stopped
+    env_file:
+      # Remove this section if you are using Portainer
+      - .env
+    container_name: jellyfin
+    networks:
+      - proxy
+    ports:
+      - "1901:1900"
+      - "7359:7359"
+    #      - "8096:8096"
+    #      - "8920:8920"
+    devices:
+      - /dev/dri:/dev/dri # My GPU replace with our GPU
+    # environment:
+    #   # OPENAI_API_KEY: sk-xxxxxx # Enables AI functionalities in the container
+    #   NVIDIA_DRIVER_CAPABILITIES: compute,video,utility
+    volumes:
+      # - /opt/vc/lib:/opt/vc/lib # Useful only for software acceleration on Raspberry PI
+      - "${BASE_PATH}/data/media:/Media"
+      - "${BASE_PATH}/jellyfin/config:/config"
+
+networks:
+  proxy:
+    external: true
