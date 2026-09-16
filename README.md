@@ -54,11 +54,46 @@ cp pihole/.env.example pihole/.env
 nano media-stack/.env
 nano pihole/.env
 
+# Create symlink for root-level variable interpolation
+ln -s media-stack/.env .env
+
 # Start everything
 docker compose up -d
 ```
 
 That's it. All services start from the root directory with a single command.
+
+## Environment Variables & Symlinks
+
+### Why Symlinks?
+
+When using Docker Compose with `include` from the root directory, variable interpolation (like `${PUID}`, `${PGID}`, `${TZ}`) happens **before** containers start. Docker Compose looks for these variables in:
+- Shell environment variables
+- `.env` file in the directory where you run `docker compose`
+
+Your `.env` files are in `media-stack/` and `pihole/`, but running from the root means Docker Compose can't find them for YAML interpolation.
+
+**Symlinks solve this by:**
+- Avoiding file duplication (single source of truth)
+- Keeping all environment variables centralized in their respective directories
+- Preventing warnings about unset variables
+
+### Creating the Symlinks
+
+After copying your `.env` files, create a symlink from the root:
+
+```bash
+# Create symlink for media-stack variables
+ln -s media-stack/.env .env
+
+# Verify the symlink
+ls -la .env
+# Should show: .env -> media-stack/.env
+```
+
+Now Docker Compose can read `PUID`, `PGID`, and `TZ` from the root, while each service still uses its own `env_file` for runtime variables.
+
+**Note:** The symlink only needs to be created once. It persists across restarts and reboots.
 
 ## Project Structure
 
@@ -316,6 +351,20 @@ docker compose ps
 Create the network first:
 ```bash
 docker network create --driver bridge --subnet 172.20.0.0/24 --gateway 172.20.0.1 proxy
+```
+
+### "container name already in use" or containers not stopping with `docker compose down`
+This happens when containers were created from individual compose files (before using `include`). They belong to separate projects. Stop all old projects:
+```bash
+docker compose -p bindery down
+docker compose -p calibre-web down
+docker compose -p nginx-proxy-manager down
+docker compose -p pdfutils down
+docker compose -p pihole down
+```
+Then start everything from the root:
+```bash
+docker compose up -d
 ```
 
 ### Permission errors on volumes
